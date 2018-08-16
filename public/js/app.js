@@ -47427,26 +47427,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
 
         /**
-         * Compare the current card with the next one and update the score.
-         * If higher is chosen and it's the same value then => correct
-         * If lower is chosen and it's the same value then => incorrect
+         * Compare the current card with the next one and compare with the user's choice then
+         * update the score.
+         * If cards have equal value then ignore.
          * If got to the end of the deck then reshuffle and continue.
          * @param choice
          */
         checkChoice: function checkChoice(choice) {
             var currentCardValue = this.mapCardValue(this.cards[this.currentIndex].value);
             var nextCardValue = this.mapCardValue(this.cards[this.currentIndex + 1].value);
-            if (choice === 'higher') {
-                if (nextCardValue >= currentCardValue) {
-                    this.setCorrect();
+            if (nextCardValue !== currentCardValue) {
+                if (choice === 'higher') {
+                    if (nextCardValue >= currentCardValue) {
+                        this.setCorrect();
+                    } else {
+                        this.setIncorrect();
+                    }
                 } else {
-                    this.setIncorrect();
-                }
-            } else {
-                if (nextCardValue < currentCardValue) {
-                    this.setCorrect();
-                } else {
-                    this.setIncorrect();
+                    if (nextCardValue < currentCardValue) {
+                        this.setCorrect();
+                    } else {
+                        this.setIncorrect();
+                    }
                 }
             }
             if (this.currentIndex === 50) {
