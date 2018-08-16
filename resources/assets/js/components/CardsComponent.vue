@@ -74,6 +74,8 @@
             },
             /**
              * Compare the current card with the next one and update the score.
+             * If higher is chosen and it's the same value then => correct
+             * If lower is chosen and it's the same value then => incorrect
              * If got to the end of the deck then reshuffle and continue.
              * @param choice
              */
