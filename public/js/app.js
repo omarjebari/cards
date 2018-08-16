@@ -47369,27 +47369,111 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
+/**
+ * A Play Your Cards Right component
+ * - The cards are pulled from a remote source and shuffled
+ * - The user keeps playing until they get 3 wrong
+ * - If the user gets to the end of the deck the cards are reshuffled and the user continues
+ * - When the game is over the user's total is displayed with the option of starting a new game
+ */
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
-        return {};
+        return {
+            cards: [],
+            lives: 3,
+            countCorrect: 0,
+            countTotal: 0,
+            currentIndex: 0,
+            cardValueMap: {
+                'A': 1,
+                'K': 13,
+                'Q': 12,
+                'J': 11
+            }
+        };
     },
-    computed: {},
+    computed: {
+        gameOver: function gameOver() {
+            return this.lives === 0;
+        }
+    },
     filters: {},
     methods: {
         getData: function getData() {
+            var self = this;
             axios.get('/get-data').then(function (response) {
-                // handle success
-                console.log(response);
+                self.cards = response.data;
+                self.shuffle();
             }).catch(function (error) {
                 // handle error
                 console.log(error);
             });
+        },
+        shuffle: function shuffle() {
+            this.cards = _.shuffle(this.cards);
+        },
+
+        /**
+         * Compare the current card with the next one and update the score.
+         * If got to the end of the deck then reshuffle and continue.
+         * @param choice
+         */
+        checkChoice: function checkChoice(choice) {
+            var currentCardValue = this.mapCardValue(this.cards[this.currentIndex].value);
+            var nextCardValue = this.mapCardValue(this.cards[this.currentIndex + 1].value);
+            if (choice === 'higher') {
+                if (nextCardValue >= currentCardValue) {
+                    this.setCorrect();
+                } else {
+                    this.setIncorrect();
+                }
+            } else {
+                if (nextCardValue < currentCardValue) {
+                    this.setCorrect();
+                } else {
+                    this.setIncorrect();
+                }
+            }
+            if (this.currentIndex === 50) {
+                // Got to the end of the deck so shuffle and start again
+                this.shuffle();
+                this.currentIndex = 0;
+            } else {
+                ++this.currentIndex;
+                ++this.countTotal;
+            }
+        },
+        setCorrect: function setCorrect() {
+            ++this.countCorrect;
+        },
+        setIncorrect: function setIncorrect() {
+            --this.lives;
+        },
+        newGame: function newGame() {
+            this.currentIndex = 0;
+            this.lives = 3;
+            this.countCorrect = 0;
+            this.countTotal = 0;
+            this.shuffle();
+        },
+        mapCardValue: function mapCardValue(value) {
+            return isNaN(value) ? this.cardValueMap[value] : value;
         }
     },
     mounted: function mounted() {
-        console.log('Component mounted.');
-
         this.getData();
     },
     created: function created() {}
@@ -47403,32 +47487,89 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "container" }, [
-      _c("div", { staticClass: "row justify-content-center" }, [
-        _c("div", { staticClass: "col-md-8" }, [
-          _c("div", { staticClass: "card card-default" }, [
-            _c("div", { staticClass: "card-header" }, [
-              _vm._v("Example Component")
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _vm._v(
-                "\n                    I'm an example component.\n                "
-              )
-            ])
-          ])
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "row justify-content-center" }, [
+      _c("div", { staticClass: "col-md-8" }, [
+        _c("div", { staticClass: "card card-default" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("Play Your Cards Right")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _vm._v(
+              "\n                    Choose whether the next card is higher or lower than the current one\n                "
+            )
+          ]),
+          _vm._v(" "),
+          _vm.cards.length
+            ? _c("div", { staticClass: "card-body" }, [
+                _c("div", [
+                  _vm._v(
+                    "\n                        " +
+                      _vm._s(_vm.cards[_vm.currentIndex].value) +
+                      " " +
+                      _vm._s(_vm.cards[_vm.currentIndex].suit) +
+                      "\n                    "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button", disabled: _vm.gameOver },
+                      on: {
+                        click: function($event) {
+                          _vm.checkChoice("higher")
+                        }
+                      }
+                    },
+                    [_vm._v("Higher")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button", disabled: _vm.gameOver },
+                      on: {
+                        click: function($event) {
+                          _vm.checkChoice("lower")
+                        }
+                      }
+                    },
+                    [_vm._v("Lower")]
+                  )
+                ]),
+                _vm._v(" "),
+                _vm.gameOver
+                  ? _c("div", [
+                      _c("div", [_vm._v("Score: " + _vm._s(_vm.countCorrect))]),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { type: "button" },
+                          on: {
+                            click: function($event) {
+                              _vm.newGame()
+                            }
+                          }
+                        },
+                        [_vm._v("New game")]
+                      )
+                    ])
+                  : _vm._e()
+              ])
+            : _vm._e()
         ])
       ])
     ])
-  }
-]
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
