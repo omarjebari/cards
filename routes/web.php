@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/get-data', function () {
+    return file_get_contents('https://cards.davidneal.io/api/cards');
+});
